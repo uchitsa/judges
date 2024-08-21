@@ -126,7 +126,7 @@ class TestPrint < Minitest::Test
       fb.insert
       File.binwrite(f, fb.export)
       loog = Loog::StringIO.new
-      Judges::Print.new(Loog::StringIO.new).run({ 'format' => 'yaml', 'auto' => true }, [f])
+      Judges::Print.new(loog).run({ 'format' => 'yaml', 'auto' => true }, [f])
       y = File.join(d, 'base.yaml')
       assert(File.exist?(y))
       loog.rewind
