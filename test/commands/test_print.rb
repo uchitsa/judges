@@ -118,4 +118,22 @@ class TestPrint < Minitest::Test
       assert_equal(mtime, File.mtime(y))
     end
   end
+
+  def test_summary
+    Dir.mktmpdir do |d|
+      f = File.join(d, 'base.fb')
+      fb = Factbase.new
+      fb.insert
+      File.binwrite(f, fb.export)
+      loog = Loog::StringIO.new
+      Judges::Print.new(loog).run({ 'format' => 'yaml', 'auto' => true }, [f])
+      y = File.join(d, 'base.yaml')
+      assert(File.exist?(y))
+      loog.rewind
+      log_lines = loog.readlines
+      assert_includes log_lines, "Execution Summary:\n"
+      assert_includes log_lines, "run: "
+      assert_includes log_lines, "to_html: "
+    end
+  end
 end

@@ -39,13 +39,14 @@ require_relative '../../judges/impex'
 class Judges::Print
   def initialize(loog)
     @loog = loog
+    @times = {}
   end
 
   # Run it (it is supposed to be called by the +bin/judges+ script.
   # @param [Hash] opts Command line options (start with '--')
   # @param [Array] args List of command line arguments
   def run(opts, args)
-    raise 'At lease one argument required' if args.empty?
+    raise 'At least one argument required' if args.empty?
     f = args[0]
     fb = Judges::Impex.new(@loog, f).import
     fb.query("(not #{opts['query']})").delete! unless opts['query'].nil?
@@ -84,6 +85,7 @@ class Judges::Print
       File.binwrite(o, output)
       throw :"Factbase printed to #{o.to_rel} (#{File.size(o)} bytes)"
     end
+    summary
   end
 
   private
@@ -102,5 +104,22 @@ class Judges::Print
         'version' => Judges::VERSION
       )
     )
+  end
+
+  def elapsed(loog, level: Logger::DEBUG)
+    start = Time.now
+    yield
+    finish = Time.now
+    duration = finish - start
+    caller = caller_locations(1, 1)[0].label
+    @times[caller] = duration
+    loog.send(level, "Executed #{caller} in #{duration} seconds")
+  end
+
+  def summary
+    @loog.info('Execution Summary:')
+    @times.sort_by { |_, time| -time }.each do |method, time|
+      @loog.info("#{method}: #{time} seconds")
+    end
   end
 end
