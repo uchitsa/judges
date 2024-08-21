@@ -46,7 +46,7 @@ class Judges::Print
   # @param [Hash] opts Command line options (start with '--')
   # @param [Array] args List of command line arguments
   def run(opts, args)
-    raise 'At lease one argument required' if args.empty?
+    raise 'At least one argument required' if args.empty?
     f = args[0]
     fb = Judges::Impex.new(@loog, f).import
     fb.query("(not #{opts['query']})").delete! unless opts['query'].nil?
