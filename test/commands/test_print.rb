@@ -125,11 +125,12 @@ class TestPrint < Minitest::Test
       fb = Factbase.new
       fb.insert
       File.binwrite(f, fb.export)
+      loog = Loog::StringIO.new
       Judges::Print.new(Loog::StringIO.new).run({ 'format' => 'yaml', 'auto' => true }, [f])
       y = File.join(d, 'base.yaml')
       assert(File.exist?(y))
-      StringIO.rewind
-      log_lines = StringIO.readlines
+      loog.rewind
+      log_lines = loog.readlines
       assert_includes log_lines, "Execution Summary:\n"
       assert_includes log_lines, "run: "
       assert_includes log_lines, "to_html: "
